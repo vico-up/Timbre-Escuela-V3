@@ -1,0 +1,13 @@
+.pio
+.vscode/.browserslistrc
+.DS_Store
+.svn
+.git
+.hg
+*.swp
+*.lng
+*.pyc
+*.pyo
+*.bak
+*.class
+*~

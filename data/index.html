@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timbre Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Timbre Escolar</h1>
+            <div id="clock" class="clock">--:--:--</div>
+        </header>
+
+        <main>
+            <section class="card manual-control">
+                <h2>Control Manual</h2>
+                <button id="btn-ring" class="btn btn-primary">ACTIVAR TIMBRE (5s)</button>
+            </section>
+
+            <section class="card schedule-list">
+                <h2>Horarios Programados</h2>
+                <ul id="schedule-list">
+                    <!-- List items will be injected here -->
+                </ul>
+            </section>
+
+            <section class="card add-schedule">
+                <h2>Agregar Horario</h2>
+                <form id="add-form">
+                    <div class="form-group">
+                        <label for="time">Hora:</label>
+                        <input type="time" id="time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duración (seg):</label>
+                        <input type="number" id="duration" value="5" min="1" max="60" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Agregar</button>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
