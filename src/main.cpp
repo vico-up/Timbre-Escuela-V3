@@ -2,14 +2,14 @@
 #include "WebServer.h"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h> // Include mDNS
 #include <LittleFS.h>
 #include <NTPClient.h>
+#include <WiFiManager.h>
 #include <WiFiUdp.h>
 
-// --- CONFIGURATION ---
-const char *ssid = "Martinez-2.4G";
-const char *password = "Guadalupe";
-const int BELL_PIN = 2; // Confirmed by user
+
+const int BELL_PIN = D1; // D1 = GPIO5 nuevo pin para activar rele
 const long UTC_OFFSET_IN_SECONDS =
     -14400; // Example: UTC-4 (Bolivia/Venezuela/East US). Adjust as needed.
 
@@ -28,16 +28,30 @@ void setup() {
     return;
   }
 
-  // Connect to WiFi
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  WiFiManager wifiManager;
+  // wifiManager.resetSettings(); // Uncomment to reset credentials
+
+  // if it does not connect it starts an access point with the specified name
+  // and goes into a blocking loop awaiting configuration
+  if (!wifiManager.autoConnect("Timbre-Config")) {
+    Serial.println("failed to connect and hit timeout");
+    delay(3000);
+    // reset and try again, or maybe put it to deep sleep
+    ESP.reset();
+    delay(5000);
   }
-  Serial.println();
-  Serial.print("Connected! IP address: ");
+
+  // if you get here you have connected to the WiFi
+  Serial.println("connected...yeey :)");
+  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+
+  // Initialize mDNS
+  if (MDNS.begin("timbre")) {
+    Serial.println("mDNS responder started: http://timbre.local");
+  } else {
+    Serial.println("Error setting up MDNS responder!");
+  }
 
   // Initialize NTP
   timeClient.begin();
@@ -50,6 +64,8 @@ void setup() {
 }
 
 void loop() {
+  MDNS.update();
   timeClient.update();
   bellManager.loop();
+  webServer.handleClient();
 }
