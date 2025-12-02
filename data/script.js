@@ -30,9 +30,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             const timeStr = `${String(item.h).padStart(2, '0')}:${String(item.m).padStart(2, '0')}`;
 
+            // Decode days bitmask
+            let daysStr = "";
+            const daysMap = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            let activeDays = [];
+
+            // Default to all days if days property is missing (backward compatibility)
+            let mask = item.days !== undefined ? item.days : 127;
+
+            for (let i = 0; i < 7; i++) {
+                if ((mask >> i) & 1) {
+                    activeDays.push(daysMap[i]);
+                }
+            }
+
+            if (activeDays.length === 7) daysStr = "Todos los días";
+            else if (activeDays.length === 5 && mask === 62) daysStr = "Lun-Vie"; // 00111110
+            else daysStr = activeDays.join(", ");
+
             li.innerHTML = `
-                <span><strong>${timeStr}</strong> (${item.d}s)</span>
-                <button class="btn btn-danger" onclick="deleteSchedule(${index})">Eliminar</button>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                        <strong>${timeStr}</strong> <small class="text-muted">(${item.d}s)</small><br>
+                        <small class="text-primary">${daysStr}</small>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="deleteSchedule(${index})">X</button>
+                </div>
             `;
             scheduleListEl.appendChild(li);
         });
@@ -46,11 +69,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const [h, m] = timeVal.split(':').map(Number);
 
+        // Calculate Days Bitmask
+        let daysMask = 0;
+        // Checkboxes: day0 (Sun) to day6 (Sat). Note: My HTML used value=1,2,4... for Mon-Fri.
+        // Let's correct the logic to match standard: Sun=0, Mon=1...Sat=6
+
+        // Sun (Bit 0)
+        if (document.getElementById('day0').checked) daysMask |= (1 << 0);
+        // Mon (Bit 1)
+        if (document.getElementById('day1').checked) daysMask |= (1 << 1);
+        // Tue (Bit 2)
+        if (document.getElementById('day2').checked) daysMask |= (1 << 2);
+        // Wed (Bit 3)
+        if (document.getElementById('day3').checked) daysMask |= (1 << 3);
+        // Thu (Bit 4)
+        if (document.getElementById('day4').checked) daysMask |= (1 << 4);
+        // Fri (Bit 5)
+        if (document.getElementById('day5').checked) daysMask |= (1 << 5);
+        // Sat (Bit 6)
+        if (document.getElementById('day6').checked) daysMask |= (1 << 6);
+
         const payload = {
             h: h,
             m: m,
             d: parseInt(durationVal),
-            e: true
+            e: true,
+            days: daysMask
         };
 
         fetch('/api/schedule', {
@@ -61,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(() => {
                 loadSchedule();
-                addForm.reset();
+                // Don't reset form completely to keep duration/days settings if desired, or just reset time
+                // addForm.reset(); 
             });
     });
 

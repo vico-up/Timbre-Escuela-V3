@@ -31,10 +31,14 @@ void BellManager::loop() {
   if (currentMinute != _lastMinuteChecked && _timeClient.isTimeSet()) {
     _lastMinuteChecked = currentMinute;
     int currentHour = _timeClient.getHours();
+    int currentDay = _timeClient.getDay(); // 0 = Sunday, 1 = Monday, ...
 
     for (const auto &schedule : _schedules) {
+      // Check enabled, time, and day bitmask
+      bool dayMatch = (schedule.days >> currentDay) & 1;
+
       if (schedule.enabled && schedule.hour == currentHour &&
-          schedule.minute == currentMinute) {
+          schedule.minute == currentMinute && dayMatch) {
         trigger(schedule.durationSec);
         break; // Trigger only once per minute match
       }
@@ -50,13 +54,14 @@ void BellManager::trigger(int durationSec) {
   _ringDuration = durationSec * 1000;
 }
 
-bool BellManager::addSchedule(int hour, int minute, int durationSec) {
+bool BellManager::addSchedule(int hour, int minute, int durationSec,
+                              uint8_t days) {
   if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || durationSec <= 0) {
     Serial.println("Invalid schedule parameters");
     return false;
   }
 
-  BellSchedule newSchedule = {hour, minute, durationSec, true};
+  BellSchedule newSchedule = {hour, minute, durationSec, true, days};
   _schedules.push_back(newSchedule);
   saveSchedule();
   return true;
@@ -86,6 +91,7 @@ String BellManager::getScheduleJson() {
     obj["m"] = schedule.minute;
     obj["d"] = schedule.durationSec;
     obj["e"] = schedule.enabled;
+    obj["days"] = schedule.days;
   }
 
   String output;
@@ -123,6 +129,13 @@ void BellManager::loadSchedule() {
     s.durationSec = obj["d"];
     s.enabled = obj["e"];
 
+    // Default to all days (127 = 0x7F) if not present (backward compatibility)
+    if (obj.containsKey("days")) {
+      s.days = obj["days"];
+    } else {
+      s.days = 127;
+    }
+
     // Filter out invalid entries
     if (s.durationSec <= 0 || s.hour < 0 || s.hour > 23 || s.minute < 0 ||
         s.minute > 59) {
@@ -145,6 +158,7 @@ void BellManager::saveSchedule() {
     obj["m"] = schedule.minute;
     obj["d"] = schedule.durationSec;
     obj["e"] = schedule.enabled;
+    obj["days"] = schedule.days;
   }
 
   File file = LittleFS.open("/config.json", "w");

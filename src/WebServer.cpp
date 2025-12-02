@@ -57,10 +57,11 @@ void AppWebServer::setupRoutes() {
     int h = doc["h"];
     int m = doc["m"];
     int d = doc["d"];
+    uint8_t days = doc.containsKey("days") ? (uint8_t)doc["days"] : 127;
 
-    Serial.printf("Add Schedule: %02d:%02d (%ds)\n", h, m, d);
+    Serial.printf("Add Schedule: %02d:%02d (%ds) Days: %d\n", h, m, d, days);
 
-    if (_bellManager.addSchedule(h, m, d)) {
+    if (_bellManager.addSchedule(h, m, d, days)) {
       _server.send(200, "application/json", "{\"status\":\"ok\"}");
     } else {
       _server.send(400, "application/json",

@@ -8,7 +8,6 @@
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
 
-
 const int BELL_PIN = D1; // D1 = GPIO5 nuevo pin para activar rele
 const long UTC_OFFSET_IN_SECONDS =
     -14400; // Example: UTC-4 (Bolivia/Venezuela/East US). Adjust as needed.
@@ -68,4 +67,15 @@ void loop() {
   timeClient.update();
   bellManager.loop();
   webServer.handleClient();
+
+  static unsigned long lastPrint = 0;
+  if (millis() - lastPrint > 5000) {
+    lastPrint = millis();
+    Serial.print("Time Status: ");
+    if (timeClient.isTimeSet()) {
+      Serial.println(timeClient.getFormattedTime());
+    } else {
+      Serial.println("Not Synced");
+    }
+  }
 }

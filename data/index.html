@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timbre Escolar</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -29,19 +31,55 @@
             <section class="card add-schedule">
                 <h2>Agregar Horario</h2>
                 <form id="add-form">
-                    <div class="form-group">
-                        <label for="time">Hora:</label>
-                        <input type="time" id="time" required>
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Hora:</label>
+                        <input type="time" class="form-control" id="time" required>
                     </div>
-                    <div class="form-group">
-                        <label for="duration">Duración (seg):</label>
-                        <input type="number" id="duration" value="5" min="1" max="60" required>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duración (segundos)</label>
+                        <input type="number" class="form-control" id="duration" value="5" min="1" required>
                     </div>
-                    <button type="submit" class="btn btn-secondary">Agregar</button>
+
+                    <div class="mb-3">
+                        <label class="form-label">Días</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="day1" checked>
+                                <label class="form-check-label" for="day1">Lun</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="2" id="day2" checked>
+                                <label class="form-check-label" for="day2">Mar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="4" id="day3" checked>
+                                <label class="form-check-label" for="day3">Mié</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="8" id="day4" checked>
+                                <label class="form-check-label" for="day4">Jue</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="16" id="day5" checked>
+                                <label class="form-check-label" for="day5">Vie</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="32" id="day6">
+                                <label class="form-check-label" for="day6">Sáb</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="0" id="day0">
+                                <label class="form-check-label" for="day0">Dom</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Agregar Horario</button>
                 </form>
             </section>
         </main>
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>
